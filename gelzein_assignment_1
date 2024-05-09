@@ -1,0 +1,67 @@
+def import_data(test_input.csv):
+      
+# Task 1: Importing Participant data from a CSV file
+def import_participants(test_input.csv):
+        participants = []
+        with open(test_input.csv, 'r') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                participants.append({'name': row[A], 'type': row[B], 'health': int(row[C]), 'attack': int(row[D])})
+        return participants
+
+# Task 2: Calculating the Attack Multiplier
+def calculate_attack_multiplier(attacker_type, defender_type):
+        # Attack multiplier chart
+        multipliers = {
+            'Water': {'Fire': 2, 'Electric': 1, 'Grass': 0.5, 'Ground': 1},
+            'Fire': {'Water': 0.5, 'Electric': 1, 'Grass': 2, 'Ground': 1},
+            'Electric': {'Water': 1, 'Fire': 1, 'Grass': 1, 'Ground': 2},
+            'Grass': {'Water': 2, 'Fire': 0.5, 'Electric': 1, 'Ground': 0.5},
+            'Ground': {'Water': 1, 'Fire': 2, 'Electric': 0.5, 'Grass': 2}
+        }
+        return multipliers[attacker_type][defender_type]
+
+ # Task 3: Fight Simulation
+def simulate_fight(participant1, participant2):
+        # Determine attack multipliers for both participants
+        multiplier_p1 = calculate_attack_multiplier(participant1['type'], participant2['type'])
+        multiplier_p2 = calculate_attack_multiplier(participant2['type'], participant1['type'])
+    
+        # Simulate fight
+        rounds = 0
+        while participant1['health'] > 0 and participant2['health'] > 0:
+            # Participant 1 attacks Participant 2
+            damage_p1 = participant1['attack'] * multiplier_p1
+            participant2['health'] -= damage_p1
+            if participant2['health'] <= 0:
+                return participant1['name'], rounds + 1
+        
+            # Participant 2 attacks Participant 1
+            damage_p2 = participant2['attack'] * multiplier_p2
+            participant1['health'] -= damage_p2
+            rounds += 1
+    
+        # If no participant wins within 100 rounds, declare it as a draw
+        return "Draw", rounds
+
+# Task 4: Tournament Simulation
+def simulate_tournament(participants):
+        num_participants = len(participants)
+        wins = [0] * num_participants
+    
+        for i in range(num_participants):
+            for j in range(i + 1, num_participants):
+                winner, _ = simulate_fight(participants[i], participants[j])
+                if winner != "Draw":
+                    winner_index = i if winner == participants[i]['name'] else j
+                    wins[winner_index] += 1
+    
+        return wins
+  
+# Example usage
+    if __name__ == "__main__":
+        participants = import_participants("test_input.csv")
+        tournament_results = simulate_tournament(participants)
+        for i, result in enumerate(tournament_results):
+            print(f"{participants[5]['Pikachu']} won {result} games in the tournament.")
+            
