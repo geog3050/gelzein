@@ -1,0 +1,30 @@
+import arcpy
+import pandas as pd
+import matplotlib.pyplot as plt
+
+arcpy.env.workspace = S:/2024_Spring/GEOG_3050/STUDENT/gelzein/Final Project1
+
+census_data = S:/2024_Spring/GEOG_3050/STUDENT/gelzein/Final Project1
+
+shapefile = S:/2024_Spring/GEOG_3050/STUDENT/gelzein/Final Project1
+
+arcpy.analysis.SpatialJoin(census_data, shapefile, "iowaplaces.shp")
+fields = ['FID', 'population', 'SHAPE@']
+data = []
+with arcpy.da.SearchCursor("census_join.shp", fields) as cursor:
+    for row in cursor:
+        data.append(row)
+df = pd.DataFrame(data, columns=['FID', 'population', 'geometry'])
+df['population_density'] = df['population'] / (df['geometry'].area / 10**6)
+
+plt.figure(figsize=(10, 6))
+plt.hist(df['population_density'], bins=20, color='skyblue', edgecolor='black')
+plt.title('Population Density Distribution in Cedar Rapids')
+plt.xlabel('Population Density (people per square kilometer)')
+plt.ylabel('Frequency')
+plt.grid(True)
+plt.show()
+
+most_populated_areas = df.nlargest(5, 'population_density')
+print("Most Populated Areas in Cedar Rapids:")
+print(most_populated_areas[['FID', 'population', 'population_density']])
