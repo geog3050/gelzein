@@ -1,0 +1,74 @@
+problem 1
+
+import arcpy
+import pandas as pd
+
+def importCSVIntoGeodatabase(csvFile, geodatabase):
+    pass
+
+def import_csv_to_geodatabase(csv_file, geodatabase):
+    df = pd.read_csv(csv_file)
+
+    feature_class_name = csv_file.split("/")[-1].split(".")[0]
+
+    feature_class_path = f"{geodatabase}/{feature_class_name}"
+
+    arcpy.da.DataFrameToTable(feature_class_path, df)
+
+    print(f"Data imported successfully to {feature_class_path}")
+
+
+if __name__ == "__main__":
+    csvFile = "C:/users/gelzein/weather.csv"
+    geodatabase = "C:/path/to/geodatabase.gdb"
+    import_csv_to_geodatabase(csv_file, geodatabase)
+
+problem 2
+
+import arcpy
+from arcpy.sa import
+
+def krigingFromPointCSV(inTable, valueField, xField, yField, inClipFc, workspace = "assignment3.gdb"):
+    pass arcpy.env.workspace = workspace
+    
+    
+    inFeature = "input_feature"
+    arcpy.management.XYTableToPoint(inTable, inFeature, xField, yField)
+    
+    
+    inClipSR = arcpy.Describe(inClipFc).spatialReference
+    arcpy.management.Project(inFeature, "projected_feature", inClipSR)
+    
+    
+    if arcpy.CheckExtension("Spatial") == "Available":
+        arcpy.CheckOutExtension("Spatial")
+    else:
+        raise Exception("Spatial Analyst extension is not available")
+
+    
+    outKriging = Kriging("projected_feature", valueField)
+    outKriging.save("kriging_result")
+    
+    
+    outClip = arcpy.sa.ExtractByMask("kriging_result", inClipFc)
+    outClip.save(f"{valueField}_interpolated_clipped")
+
+    
+    arcpy.Delete_management("projected_feature")
+    arcpy.Delete_management("kriging_result")
+
+    arcpy.CheckInExtension("Spatial")
+
+def main():
+    
+    inTable = arcpy.GetParameterAsText(0)
+    valueField = arcpy.GetParameterAsText(1)
+    xField = arcpy.GetParameterAsText(2)
+    yField = arcpy.GetParameterAsText(3)
+    inClipFc = arcpy.GetParameterAsText(4)
+    workspace = arcpy.GetParameterAsText(5)
+
+    interpolate_raster(inTable, valueField, xField, yField, inClipFc, workspace)
+
+if __name__ == "__main__":
+    main()
