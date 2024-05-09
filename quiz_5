@@ -1,0 +1,15 @@
+import geopandas as gpd 
+
+data = gpd.read_file('airports.shp')
+
+filtered_data = data[(data['FEATURE'] == 'airport') | (data['FEATURE'] == 'seaplane base')]
+filtered_data = filtered_data[filtered_data['TOT_ENP'] >= 1000] 
+
+filtered_data.loc[(filtered_data['FEATURE'] == 'airport') & (filtered_data['TOT_ENP'] > 10000), 'buffer_distance'] = 15000
+filtered_data.loc[(filtered_data['FEATURE'] == 'airport') & (filtered_data['TOT_ENP'] <= 10000), 'buffer_distance'] = 10000
+filtered_data.loc[(filtered_data['FEATURE'] == 'seaplane base') & (filtered_data['TOT_ENP'] > 1000), 'buffer_distance'] = 7500
+
+filtered_data['geometry'] = filtered_data.apply(lambda row: row.geometry.buffer(row.buffer_distance), axis=1)
+
+buffer_airports_file = 'buffer_airports.shp'
+filtered_data.to_file(buffer_airports_file)
