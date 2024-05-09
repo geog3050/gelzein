@@ -1,0 +1,77 @@
+problem 1
+import arcpy
+
+def print_feature_classes(workspace):
+    arcpy.env.workspace = workspace
+    feature_classes = arcpy.ListFeatureClasses()
+    if not feature_classes:
+        print("No feature classes found in the workspace.")
+        return
+    
+    for fc in feature_classes:
+        desc = arcpy.Describe(fc)
+        geometry_type = desc.shapeType
+        print(f"{fc} is a {geometry_type} feature class")
+
+def printFeatureClassNames(workspace):
+    pass
+
+
+problem 2
+import shapefile
+
+def print_numerical_attributes(shapefile_path):
+    sf = shapefile.Reader(shapefile_path)
+    
+    fields = sf.fields[1:]
+    
+    for field in fields:
+        name, type_name, _, _ = field
+        if type_name in ['N', 'F', 'I', 'L']:
+            print(f"Attribute Name: {name}, Type: {type_name}")
+
+
+def printNumericalFieldNames(inputFc, workspace):
+    pass
+
+
+problem 3
+import arcpy
+import os
+
+def copy_feature_classes_by_shape(input_geodatabase, output_geodatabase, shape_type):
+    arcpy.CreateFileGDB_management(os.path.dirname(output_geodatabase), os.path.basename(output_geodatabase))
+
+    arcpy.env.workspace = input_geodatabase
+    feature_classes = arcpy.ListFeatureClasses()
+
+    for fc in feature_classes:
+        desc = arcpy.Describe(fc)
+        if desc.shapeType.lower() == shape_type.lower():
+            arcpy.CopyFeatures_management(fc, os.path.join(output_geodatabase, fc))
+
+def exportFeatureClassesByShapeType(input_geodatabase, shapeType, output_geodatabase):
+    pass
+
+
+problem 4
+import arcpy
+
+arcpy.env.workspace = r"C:\Your\Workspace"
+arcpy.env.overwriteOutput = True
+
+input_fc = "your_input_feature_class.shp"
+
+input_table = "your_input_table"
+
+output_fc = "your_output_feature_class.shp"
+
+arcpy.JoinField_management(input_fc, "FieldToJoin", input_table, "FieldToJoin", fields="ALL")
+
+matched_count = arcpy.GetCount_management(input_fc)
+unmatched_count = arcpy.GetCount_management(input_fc, "","","-1")
+
+arcpy.CopyFeatures_management(input_fc, output_fc)
+
+def exportAttributeJoin(inputFc, idFieldInputFc, inputTable, idFieldTable, workspace):
+    pass
