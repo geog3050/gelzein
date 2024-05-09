@@ -1,0 +1,37 @@
+import arcpy
+
+def calculatePercentAreaOfPolygonAInPolygonB(input_geodatabase, fcPolygonA, fcPolygonB, idFieldPolygonB=None):
+arcpy.env.workspace = input_geodatabase
+    
+arcpy.AddField_management(fcPolygonB, "PercentAreaPolygonA", "DOUBLE")
+     
+arcpy.AddField_management(fcPolygonA, "AreaA", "DOUBLE")
+arcpy.CalculateGeometryAttributes_management(fcPolygonA, "AreaA AREA_GEODESIC", "", "SQUARE_METERS")
+   
+     
+with arcpy.da.UpdateCursor(fcPolygonB, ["SHAPE@", "OID@", "PercentAreaPolygonA"]) as cursor:
+for row in cursor:
+total_area_polygon_b = row[0].getArea("GEODESIC", "SQUARE_METERS")
+intersected_area = 0
+             
+             
+with arcpy.da.SearchCursor(fcPolygonA, ["SHAPE@", "AreaA"]) as cursor_a:
+for row_a in cursor_a:
+intersected = row_a[0].intersect(row[0], 4)
+intersected_area += intersected.getArea("GEODESIC", "SQUARE_METERS")
+             
+             
+percentage = (intersected_area / total_area_polygon_b) * 100
+row[2] = percentage
+cursor.updateRow(row)
+ 
+     
+arcpy.DeleteField_management(fcPolygonA, "AreaA")
+ 
+ 
+input_geodatabase = "path/to/quiz6.gdb"
+fcPolygonA = "parks"
+fcPolygonB = "block_groups"
+idFieldPolygonB = "ID"  
+
+calculatePercentAreaOfPolygonAInPolygonB(input_geodatabase, fcPolygonA, fcPolygonB, idFieldPolygonB)
